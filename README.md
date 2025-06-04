@@ -1,38 +1,56 @@
-🎰 Gambling Tracker – Resoconto Economico Sessioni di Gioco
+🎰 Gambling Tracker – App Web per Tracciamento Sessioni di Gioco
 
-Gambling Tracker è una semplice applicazione web pensata per tenere traccia delle proprie sessioni di gioco online (es. BlackJack, Poker, Slot, Crazy Time, ecc.). Permette di inserire manualmente ogni sessione, salvare i dati nel browser e visualizzare statistiche dettagliate per giorno, settimana e mese.
+Gambling Tracker è una web app leggera sviluppata in HTML, CSS e JavaScript vanilla, progettata per tenere traccia delle proprie sessioni di gioco d’azzardo o da casinò online. Non richiede backend né installazione: funziona completamente lato client tramite localStorage.
 
 ⸻
 
-✅ Funzionalità principali
-	•	Aggiunta sessione: inserisci data, gioco e importo vinto o perso.
-	•	Salvataggio locale: i dati vengono memorizzati nel localStorage del browser.
-	•	Statistiche periodiche:
-	•	Bilancio e numero di sessioni giornaliero, settimanale e mensile.
-	•	Miglior e peggior gioco per ciascun periodo.
+🚀 Funzionalità principali
+
+	•	Inserimento sessioni: l’utente seleziona un gioco, inserisce un importo (positivo o negativo) e una data.
+	•	Persistenza dati: tutte le sessioni vengono salvate nel localStorage del browser.
+	•	Riepilogo per periodo:
+	•	Statistiche giornaliere, settimanali e mensili.
+	•	Bilancio totale, numero di sessioni, miglior e peggior gioco.
 	•	Resoconto per gioco:
-	•	Numero di sessioni.
-	•	Totale guadagnato o perso.
-	•	Win rate e conteggio partite vinte/perse.
-	•	Esportazione CSV: possibilità di esportare tutte le sessioni e un riepilogo per gioco.
-	•	Importazione dati: carica backup da file .csv o .json.
+	•	Sessioni totali, saldo cumulato, win rate, vittorie e sconfitte.
+	•	Esportazione dati:
+	•	In formato .csv compatibile con Excel.
+	•	Include cronologia completa e riepilogo per gioco.
+	•	Importazione dati:
+	•	Da file .csv o .json (backup).
 
 ⸻
 
-💾 Come si usano i dati
-	•	I dati vengono salvati automaticamente nel browser ogni volta che aggiungi o modifichi una sessione.
-	•	Puoi cambiare nome del file di salvataggio per gestire più profili/localizzazioni.
-	•	È possibile esportare e importare i dati per backup o spostamento su altri dispositivi.
+🧱 Struttura dell’app
+
+	•	Tutto il codice è contenuto in un singolo file HTML (game-tracker_v3.html).
+	•	Il CSS è interno e include uno stile responsive per dispositivi mobili.
+	•	Il JS è inline e gestisce:
+	•	Manipolazione DOM
+	•	Gestione stato (array di sessioni)
+	•	Calcoli statistici
+	•	Funzioni di import/export
+	•	Gestione dinamica delle tab e delle notifiche
 
 ⸻
 
-📁 Tecnologie utilizzate
-	•	HTML, CSS, JavaScript (Vanilla)
-	•	localStorage per la persistenza dati
-	•	Nessun backend: funziona completamente offline
+📦 Storage e backup
+
+	•	I dati vengono salvati nel browser tramite localStorage, sotto una chiave personalizzabile (es. gaming-tracker-data).
+	•	L’utente può esportare o importare file JSON per il backup manuale o lo spostamento tra dispositivi.
+	•	In alternativa è disponibile l’esportazione CSV con cronologia e sommari.
 
 ⸻
 
-⚠️ Note
-	•	I dati salvati sono locali al browser: cancellare la cache o usare la modalità in incognito può causare la perdita dei dati.
-	•	Per maggiore sicurezza, usa le funzioni di salvataggio backup.
+📌 Note per lo sviluppo
+
+	•	Non ci sono dipendenze esterne o build step.
+	•	Il salvataggio avviene in automatico a ogni modifica.
+	•	Per testare versioni differenti, si può cambiare la chiave localStorage dal campo “Nome Dati Locali”.
+
+⸻
+
+🛡️ Avvertenze
+
+	•	I dati sono memorizzati solo localmente. Pulire la cache o usare la modalità incognito comporta la perdita dei dati.
+	•	Per evitare perdite, si consiglia di usare regolarmente l’opzione 💾 Salva Backup.
