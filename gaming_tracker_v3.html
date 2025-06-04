@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Tracker - Resoconto Economico</title>
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiR2FtaW5nIFRyYWNrZXIiLCJzaG9ydF9uYW1lIjoiR2FtaW5nVHJhY2tlciIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjNjY3ZWVhIiwidGhlbWVfY29sb3IiOiIjNjY3ZWVhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qUXdJaUJvWldsbmFIUTlJakkwTUNJZ2RtbGxkMEp2ZUQwaU1DQXdJakkwTUNBeU5EQWlQaUIwWlhoMFBpQjhjREkwTUhZeU5EQkJjbWxoYkNCdmJtVmJMUzF2Y25CaWNtTWdVRzlzTUZCaGNubGdNa0IxYm1sbVpXc0siLCJzaXplcyI6IjI0MHgyNDAiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    <meta name="theme-color" content="#667eea">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745; /* Green for active */
+        }
+        
+        .status-dot.error {
+            background: #dc3545; /* Red for error/inactive */
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .config-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .file-path {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            font-family: monospace;
+            color: #495057;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .summary-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .profit { color: #28a745; }
+        .loss { color: #dc3545; }
+        .neutral { color: #6c757d; }
+
+        .tabs {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 3px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab:hover:not(.active) {
+            background: #f8f9fa;
+            color: #495057;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        select, input, button {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="file"] {
+            padding: 9px; /* Adjust padding for file input */
+        }
+
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .game-header {
+            padding: 20px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+            position: relative;
+        }
+
+        /* No delete game button in this version, focus on session deletion */
+
+        .blackjack { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+        .crazy-time { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .poker { background: linear-gradient(135deg, #45b7d1, #96c93d); }
+        .football-studio { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .football-blitz { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .war-live { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .slot { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .default-game { background: linear-gradient(135deg, #6c757d, #343a40); } /* For any new/unclassified games */
+
+
+        .game-stats {
+            padding: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .period-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .best-worst {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .performance-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .best-game {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+        }
+
+        .worst-game {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 2px solid #dc3545;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .history-table {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .delete-session-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px; /* Slightly larger for better clickability */
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px; /* Slightly larger */
+            transition: background 0.2s ease;
+        }
+
+        .delete-session-btn:hover {
+            background: #c82333;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick-amount {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .quick-amount:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .game-tables {
+                grid-template-columns: 1fr;
+            }
+            
+            .best-worst {
+                grid-template-columns: 1fr;
+            }
+
+            .config-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .config-row > div {
+                margin-bottom: 10px;
+            }
+            .config-row > div:last-child {
+                margin-bottom: 0;
+            }
+
+            .file-config {
+                min-width: auto;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                border-bottom: 1px solid #dee2e6;
+            }
+            .tab.active {
+                 border-bottom: 3px solid #667eea;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            align-items: center; /* Vertically center */
+            justify-content: center; /* Horizontally center */
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px; /* More padding */
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        #notification-area {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideInAndOut 5s forwards; /* Slide in, stay, slide out */
+        }
+
+        @keyframes slideInAndOut {
+            0% { opacity: 0; transform: translateX(100%); }
+            10% { opacity: 1; transform: translateX(0); } /* Slide in */
+            90% { opacity: 1; transform: translateX(0); } /* Stay */
+            100% { opacity: 0; transform: translateX(100%); } /* Slide out */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 Gaming Tracker</h1>
+            <p>Resoconto Economico Completo</p>
+            <div class="status-indicator" id="statusIndicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Caricamento...</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-row">
+                <div class="file-config">
+                    <label for="filePathInput" style="margin-bottom: 0; min-width: 120px;">Nome Dati Locali:</label>
+                    <input type="text" id="filePathInput" class="file-path" value="gaming-tracker-data">
+                    <button class="btn" onclick="changeDataFile()" style="min-width: 100px;">📁 Applica</button>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importJSON(event)">
+                    <button class="btn" onclick="document.getElementById('importFile').click()" style="background: linear-gradient(135deg, #17a2b8, #1f97af);">📥 Importa JSON</button>
+                    <button class="btn" onclick="exportToCSV()" style="background: linear-gradient(135deg, #28a745, #20c997);">📊 CSV</button>
+                    <button class="btn" onclick="confirmClearAllData()" style="background: linear-gradient(135deg, #dc3545, #fd7e14);">🗑️ Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>💰 Bilancio Totale</h3>
+                <div class="summary-value" id="totalBalance">€0.00</div>
+                <small>Tutti i giochi</small>
+            </div>
+            <div class="summary-card">
+                <h3>📈 Sessioni Totali</h3>
+                <div class="summary-value neutral" id="totalSessions">0</div>
+                <small>Partite giocate</small>
+            </div>
+            <div class="summary-card">
+                <h3>🏆 Miglior Gioco</h3>
+                <div class="summary-value profit" id="bestGame">-</div>
+                <small>Maggior profitto</small>
+            </div>
+            <div class="summary-card">
+                <h3>📊 Media Sessione</h3>
+                <div class="summary-value" id="avgSession">€0.00</div>
+                <small>Per partita</small>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('daily', this)">📅 Giornaliero</button>
+            <button class="tab" onclick="showTab('weekly', this)">📊 Settimanale</button>
+            <button class="tab" onclick="showTab('monthly', this)">📈 Mensile</button>
+            <button class="tab" onclick="showTab('history', this)">📋 Cronologia</button>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h3 style="margin-bottom: 20px; color: #333;">➕ Aggiungi Nuova Sessione</h3>
+                
+                <div class="quick-actions">
+                    <span style="font-weight: 600; color: #666; align-self: center;">Importi rapidi:</span>
+                    <div class="quick-amount" onclick="setQuickAmount(-5)">-5€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(-10)">-10€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(-20)">-20€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(-50)">-50€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(10)">+10€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(25)">+25€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(50)">+50€</div>
+                    <div class="quick-amount" onclick="setQuickAmount(100)">+100€</div>
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="gameSelect">Gioco</label>
+                        <select id="gameSelect">
+                            <option value="blackjack">🂡 BlackJack</option>
+                            <option value="crazy-time">🎡 Crazy Time</option>
+                            <option value="poker">🃏 Poker</option>
+                            <option value="football-studio">⚽ Football Studio</option>
+                            <option value="football-blitz">⚡ Football Blitz Top Card</option>
+                            <option value="war-live">⚔️ War Live</option>
+                            <option value="slot">🎰 Slot</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amountInput">Importo (€)</label>
+                        <input type="number" id="amountInput" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateInput">Data</label>
+                        <input type="date" id="dateInput">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn" onclick="addSession()">Aggiungi</button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #007bff;">
+                    <small style="color: #0056b3;">
+                        <strong>💡 Salvataggio:</strong> I dati vengono salvati automaticamente nel browser (localStorage) ad ogni modifica.
+                        Il nome dati locali sopra indicato definisce dove vengono salvati i dati nel browser.
+                    </small>
+                </div>
+            </div>
+
+            <div id="daily" class="tab-content active">
+                <div class="period-summary">
+                    <h3>📅 Resoconto Giornaliero</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Bilancio Oggi:</span>
+                        <span class="stat-value" id="dailyBalance">€0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Sessioni Oggi:</span>
+                        <span class="stat-value" id="dailySessions">0</span>
+                    </div>
+                    <div class="best-worst">
+                        <div class="performance-card best-game">
+                            <h4>🏆 Miglior Gioco Oggi</h4>
+                            <div id="dailyBestGameName">-</div>
+                            <div id="dailyBestGameValue" class="stat-value profit">€0.00</div>
+                        </div>
+                        <div class="performance-card worst-game">
+                            <h4>📉 Peggior Gioco Oggi</h4>
+                            <div id="dailyWorstGameName">-</div>
+                            <div id="dailyWorstGameValue" class="stat-value loss">€0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="weekly" class="tab-content">
+                <div class="period-summary">
+                    <h3>📊 Resoconto Settimanale</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Bilancio Settimana Corrente:</span>
+                        <span class="stat-value" id="weeklyBalance">€0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Sessioni Settimana Corrente:</span>
+                        <span class="stat-value" id="weeklySessions">0</span>
+                    </div>
+                    <div class="best-worst">
+                        <div class="performance-card best-game">
+                            <h4>🏆 Miglior Gioco Settimana</h4>
+                            <div id="weeklyBestGameName">-</div>
+                            <div id="weeklyBestGameValue" class="stat-value profit">€0.00</div>
+                        </div>
+                        <div class="performance-card worst-game">
+                            <h4>📉 Peggior Gioco Settimana</h4>
+                            <div id="weeklyWorstGameName">-</div>
+                             <div id="weeklyWorstGameValue" class="stat-value loss">€0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="monthly" class="tab-content">
+                <div class="period-summary">
+                    <h3>📈 Resoconto Mensile</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Bilancio Mese Corrente:</span>
+                        <span class="stat-value" id="monthlyBalance">€0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Sessioni Mese Corrente:</span>
+                        <span class="stat-value" id="monthlySessions">0</span>
+                    </div>
+                    <div class="best-worst">
+                        <div class="performance-card best-game">
+                            <h4>🏆 Miglior Gioco Mese</h4>
+                            <div id="monthlyBestGameName">-</div>
+                            <div id="monthlyBestGameValue" class="stat-value profit">€0.00</div>
+                        </div>
+                        <div class="performance-card worst-game">
+                            <h4>📉 Peggior Gioco Mese</h4>
+                            <div id="monthlyWorstGameName">-</div>
+                            <div id="monthlyWorstGameValue" class="stat-value loss">€0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="history" class="tab-content">
+                <div class="history-section">
+                    <h3>📋 Cronologia Sessioni</h3>
+                    <div class="history-filters">
+                        <select id="historyGameFilter" onchange="filterHistory()">
+                            <option value="">Tutti i giochi</option>
+                            </select>
+                        <input type="date" id="historyDateFrom" onchange="filterHistory()">
+                        <input type="date" id="historyDateTo" onchange="filterHistory()">
+                        <button class="btn" onclick="clearHistoryFilters()">🔄 Reset Filtri</button>
+                    </div>
+                    <div class="history-table">
+                        <table id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Ora</th>
+                                    <th>Gioco</th>
+                                    <th>Importo</th>
+                                    <th>Bilancio Sessione</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="text-align: center; margin-top: 40px; margin-bottom:20px; color: #333;">Resoconto per Gioco</h2>
+            <div class="game-tables" id="gameCardsContainer">
+                </div>
+        </div>
+    </div>
+
+    <div id="notification-area"></div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">Conferma</h3>
+            <p id="modalMessage">Sei sicuro?</p>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn" onclick="closeModal()" style="background: #6c757d; margin-right: 10px;">Annulla</button>
+                <button class="btn" id="confirmBtn" style="background: #dc3545;">Conferma</button> </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDataKey = 'gaming-tracker-data';
+        let pendingAction = null;
+        let allSessions = []; // Flat array of all sessions for easier processing
+
+        const initialGameDefinitions = {
+            'blackjack': { name: '🂡 BlackJack', class: 'blackjack' },
+            'crazy-time': { name: '🎡 Crazy Time', class: 'crazy-time' },
+            'poker': { name: '🃏 Poker', class: 'poker' },
+            'football-studio': { name: '⚽ Football Studio', class: 'football-studio' },
+            'football-blitz': { name: '⚡ Football Blitz', class: 'football-blitz' },
+            'war-live': { name: '⚔️ War Live', class: 'war-live' },
+            'slot': { name: '🎰 Slot', class: 'slot' }
+        };
+
+        // DOM Elements
+        const el = {
+            filePathInput: document.getElementById('filePathInput'),
+            gameSelect: document.getElementById('gameSelect'),
+            amountInput: document.getElementById('amountInput'),
+            dateInput: document.getElementById('dateInput'),
+            totalBalance: document.getElementById('totalBalance'),
+            totalSessions: document.getElementById('totalSessions'),
+            bestGame: document.getElementById('bestGame'),
+            avgSession: document.getElementById('avgSession'),
+            dailyBalance: document.getElementById('dailyBalance'),
+            dailySessions: document.getElementById('dailySessions'),
+            dailyBestGameName: document.getElementById('dailyBestGameName'),
+            dailyBestGameValue: document.getElementById('dailyBestGameValue'),
+            dailyWorstGameName: document.getElementById('dailyWorstGameName'),
+            dailyWorstGameValue: document.getElementById('dailyWorstGameValue'),
+            weeklyBalance: document.getElementById('weeklyBalance'),
+            weeklySessions: document.getElementById('weeklySessions'),
+            weeklyBestGameName: document.getElementById('weeklyBestGameName'),
+            weeklyBestGameValue: document.getElementById('weeklyBestGameValue'),
+            weeklyWorstGameName: document.getElementById('weeklyWorstGameName'),
+            weeklyWorstGameValue: document.getElementById('weeklyWorstGameValue'),
+            monthlyBalance: document.getElementById('monthlyBalance'),
+            monthlySessions: document.getElementById('monthlySessions'),
+            monthlyBestGameName: document.getElementById('monthlyBestGameName'),
+            monthlyBestGameValue: document.getElementById('monthlyBestGameValue'),
+            monthlyWorstGameName: document.getElementById('monthlyWorstGameName'),
+            monthlyWorstGameValue: document.getElementById('monthlyWorstGameValue'),
+            historyTableBody: document.getElementById('historyTableBody'),
+            historyGameFilter: document.getElementById('historyGameFilter'),
+            historyDateFrom: document.getElementById('historyDateFrom'),
+            historyDateTo: document.getElementById('historyDateTo'),
+            gameCardsContainer: document.getElementById('gameCardsContainer'),
+            statusText: document.getElementById('statusText'),
+            statusDot: document.getElementById('statusDot'),
+            confirmModal: document.getElementById('confirmModal'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalMessage: document.getElementById('modalMessage'),
+            confirmBtn: document.getElementById('confirmBtn')
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate game selects
+            const gameOptions = Object.entries(initialGameDefinitions).map(([key, value]) => 
+                `<option value="${key}">${value.name}</option>`
+            ).join('');
+            el.gameSelect.innerHTML = gameOptions;
+            el.historyGameFilter.innerHTML = `<option value="">Tutti i giochi</option>${gameOptions}`;
+            
+            // Set default date to today
+            el.dateInput.valueAsDate = new Date();
+
+            // Load data key from localStorage if previously set
+            const savedDataKey = localStorage.getItem('gamingTrackerCurrentDataKey');
+            if (savedDataKey) {
+                currentDataKey = savedDataKey;
+                el.filePathInput.value = savedDataKey;
+            } else {
+                el.filePathInput.value = currentDataKey; // Default if nothing saved
+            }
+            
+            loadData();
+            showTab('daily', document.querySelector('.tabs .tab.active')); // Ensure correct tab is shown on load
+        });
+
+        function showNotification(message, type = 'info', duration = 5000) {
+            const notificationArea = document.getElementById('notification-area');
+            const notification = document.createElement('div');
+            notification.classList.add('notification');
+            
+            let backgroundStyle = '';
+            switch(type) {
+                case 'success':
+                    backgroundStyle = 'linear-gradient(135deg, #28a745, #20c997)';
+                    break;
+                case 'error':
+                    backgroundStyle = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+                    break;
+                case 'warning':
+                     backgroundStyle = 'linear-gradient(135deg, #ffc107, #ff9800)';
+                    break;
+                default: // info
+                    backgroundStyle = 'linear-gradient(135deg, #17a2b8, #1f97af)';
+            }
+            notification.style.background = backgroundStyle;
+            notification.textContent = message;
+
+            notificationArea.appendChild(notification);
+
+            // Trigger animation (already handled by CSS keyframes)
+            // Remove notification after animation + display time
+            setTimeout(() => {
+                notification.remove();
+            }, duration);
+        }
+
+        function formatCurrency(amount) {
+            const value = parseFloat(amount) || 0;
+            return `€${value.toFixed(2)}`;
+        }
+
+        function formatDate(dateStringOrObject) {
+            const date = new Date(dateStringOrObject);
+             return date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        function formatTime(dateStringOrObject) {
+            const date = new Date(dateStringOrObject);
+            return date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        }
+
+
+        function saveData() {
+            try {
+                localStorage.setItem(currentDataKey, JSON.stringify(allSessions));
+                el.statusText.textContent = 'Dati salvati!';
+                el.statusDot.classList.remove('error');
+                el.statusDot.style.background = '#28a745'; // Green
+                setTimeout(() => el.statusText.textContent = 'Auto-salvataggio attivo', 2000);
+            } catch (e) {
+                console.error("Errore durante il salvataggio:", e);
+                el.statusText.textContent = 'Errore salvataggio!';
+                el.statusDot.classList.add('error');
+                el.statusDot.style.background = '#dc3545'; // Red
+                showNotification("Errore nel salvataggio dei dati. Spazio esaurito?", "error");
+            }
+        }
+
+        function loadData() {
+            try {
+                const data = localStorage.getItem(currentDataKey);
+                allSessions = data ? JSON.parse(data) : [];
+                // Ensure dates are Date objects
+                allSessions.forEach(s => s.date = new Date(s.date));
+                allSessions.sort((a,b) => new Date(a.date) - new Date(b.date)); // Sort by date ascending
+
+                el.statusText.textContent = 'Dati caricati.';
+                el.statusDot.classList.remove('error');
+                el.statusDot.style.background = '#28a745';
+
+            } catch (e) {
+                console.error("Errore durante il caricamento:", e);
+                allSessions = [];
+                el.statusText.textContent = 'Errore caricamento!';
+                el.statusDot.classList.add('error');
+                el.statusDot.style.background = '#dc3545';
+                showNotification("Errore nel caricamento dei dati. File corrotto?", "error");
+            }
+            updateAllDisplays();
+        }
+
+        function changeDataFile() {
+            const newKey = el.filePathInput.value.trim();
+            if (newKey && newKey !== currentDataKey) {
+                currentDataKey = newKey;
+                localStorage.setItem('gamingTrackerCurrentDataKey', currentDataKey); // Save the new key preference
+                showNotification(`File dati cambiato in "${currentDataKey}". Caricamento dati...`, 'info');
+                loadData(); // Load data from the new key
+            } else if (!newKey) {
+                showNotification("Il nome del file dati non può essere vuoto.", "warning");
+            } else {
+                 showNotification("Nessun cambiamento nel nome del file dati.", "info");
+            }
+        }
+
+        function addSession() {
+            const gameKey = el.gameSelect.value;
+            const amount = parseFloat(el.amountInput.value);
+            const dateString = el.dateInput.value;
+
+            if (!gameKey || isNaN(amount) || !dateString) {
+                showNotification("Per favore, compila tutti i campi correttamente.", "warning");
+                return;
+            }
+            if (amount === 0) {
+                 showNotification("L'importo non può essere zero.", "warning");
+                return;
+            }
+
+            const sessionDate = new Date(dateString + "T" + new Date().toLocaleTimeString('en-GB')); // Keep time
+
+            const newSession = {
+                id: Date.now(), // Unique ID
+                game: gameKey,
+                amount: amount,
+                date: sessionDate
+            };
+
+            allSessions.push(newSession);
+            allSessions.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+
+            saveData();
+            updateAllDisplays();
+            showNotification(`Sessione di ${initialGameDefinitions[gameKey].name} aggiunta: ${formatCurrency(amount)}`, "success");
+
+            // Clear inputs
+            el.amountInput.value = '';
+            // el.dateInput.valueAsDate = new Date(); // Optionally reset date or keep it
+        }
+        
+        function deleteSession(sessionId) {
+            pendingAction = () => {
+                allSessions = allSessions.filter(s => s.id !== sessionId);
+                saveData();
+                updateAllDisplays();
+                showNotification("Sessione eliminata con successo.", "success");
+                closeModal();
+            };
+            openModal("Conferma Eliminazione", "Sei sicuro di voler eliminare questa sessione? L'azione è irreversibile.");
+        }
+
+        function updateAllDisplays() {
+            updateOverallSummary();
+            updatePeriodSummaries('daily');
+            updatePeriodSummaries('weekly');
+            updatePeriodSummaries('monthly');
+            renderGameCards();
+            filterHistory(); // This will also re-render history table
+        }
+
+        function getGameName(key) {
+            return initialGameDefinitions[key] ? initialGameDefinitions[key].name : key;
+        }
+        function getGameClass(key) {
+            return initialGameDefinitions[key] ? initialGameDefinitions[key].class : 'default-game';
+        }
+
+        function updateOverallSummary() {
+            let totalBalance = 0;
+            let totalSessionsCount = allSessions.length;
+            const gameProfits = {};
+
+            allSessions.forEach(session => {
+                totalBalance += session.amount;
+                gameProfits[session.game] = (gameProfits[session.game] || 0) + session.amount;
+            });
+
+            el.totalBalance.textContent = formatCurrency(totalBalance);
+            el.totalBalance.className = `summary-value ${totalBalance >= 0 ? 'profit' : 'loss'}`;
+            el.totalSessions.textContent = totalSessionsCount;
+            
+            const avgSess = totalSessionsCount > 0 ? totalBalance / totalSessionsCount : 0;
+            el.avgSession.textContent = formatCurrency(avgSess);
+            el.avgSession.className = `summary-value ${avgSess >= 0 ? 'profit' : (avgSess < 0 ? 'loss' : 'neutral')}`;
+
+
+            let bestGameName = '-';
+            let maxProfit = -Infinity;
+            if (totalSessionsCount > 0) {
+                for (const game in gameProfits) {
+                    if (gameProfits[game] > maxProfit) {
+                        maxProfit = gameProfits[game];
+                        bestGameName = getGameName(game);
+                    }
+                }
+                 el.bestGame.textContent = bestGameName + (bestGameName !== '-' ? ` (${formatCurrency(maxProfit)})` : '');
+                 el.bestGame.className = `summary-value ${maxProfit > 0 ? 'profit' : (maxProfit < 0 ? 'loss' : 'neutral')}`;
+
+            } else {
+                el.bestGame.textContent = '-';
+                el.bestGame.className = 'summary-value neutral';
+            }
+        }
+
+        function updatePeriodSummaries(period) {
+            const today = new Date();
+            let periodSessions = [];
+
+            if (period === 'daily') {
+                const todayStr = today.toDateString();
+                periodSessions = allSessions.filter(s => new Date(s.date).toDateString() === todayStr);
+            } else if (period === 'weekly') {
+                const startOfWeek = new Date(today);
+                const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ...
+                const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to make Monday the first day
+                startOfWeek.setDate(diff);
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                endOfWeek.setHours(23, 59, 59, 999);
+                
+                periodSessions = allSessions.filter(s => {
+                    const sessionDate = new Date(s.date);
+                    return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+                });
+            } else if (period === 'monthly') {
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+                periodSessions = allSessions.filter(s => {
+                    const sessionDate = new Date(s.date);
+                    return sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear;
+                });
+            }
+
+            let balance = 0;
+            const gameStats = {};
+            periodSessions.forEach(s => {
+                balance += s.amount;
+                gameStats[s.game] = (gameStats[s.game] || 0) + s.amount;
+            });
+
+            const balanceEl = document.getElementById(`${period}Balance`);
+            const sessionsEl = document.getElementById(`${period}Sessions`);
+            const bestGameNameEl = document.getElementById(`${period}BestGameName`);
+            const bestGameValueEl = document.getElementById(`${period}BestGameValue`);
+            const worstGameNameEl = document.getElementById(`${period}WorstGameName`);
+            const worstGameValueEl = document.getElementById(`${period}WorstGameValue`);
+
+            balanceEl.textContent = formatCurrency(balance);
+            balanceEl.className = `stat-value ${balance >= 0 ? 'profit' : 'loss'}`;
+            sessionsEl.textContent = periodSessions.length;
+
+            let bestGame = { name: '-', value: -Infinity };
+            let worstGame = { name: '-', value: Infinity };
+
+            if (periodSessions.length > 0) {
+                 Object.entries(gameStats).forEach(([gameKey, gameBalance]) => {
+                    if (gameBalance > bestGame.value) {
+                        bestGame = { name: getGameName(gameKey), value: gameBalance };
+                    }
+                    if (gameBalance < worstGame.value) {
+                        worstGame = { name: getGameName(gameKey), value: gameBalance };
+                    }
+                });
+
+                bestGameNameEl.textContent = bestGame.name;
+                bestGameValueEl.textContent = formatCurrency(bestGame.value);
+                bestGameValueEl.className = `stat-value ${bestGame.value > 0 ? 'profit' : (bestGame.value < 0 ? 'loss' : 'neutral')}`;
+
+
+                if (worstGame.value !== Infinity && worstGame.name !== bestGame.name) { // Only show if different from best and actually a loss or less profit
+                    worstGameNameEl.textContent = worstGame.name;
+                    worstGameValueEl.textContent = formatCurrency(worstGame.value);
+                    worstGameValueEl.className = `stat-value ${worstGame.value < 0 ? 'loss' : (worstGame.value > 0 ? 'profit' : 'neutral')}`;
+
+                } else if (bestGame.name !== '-' && Object.keys(gameStats).length === 1) { // if only one game played
+                    worstGameNameEl.textContent = "-";
+                    worstGameValueEl.textContent = formatCurrency(0);
+                    worstGameValueEl.className = `stat-value neutral`;
+                }
+                else {
+                    worstGameNameEl.textContent = '-';
+                    worstGameValueEl.textContent = formatCurrency(0);
+                    worstGameValueEl.className = `stat-value neutral`;
+                }
+                 if (bestGame.value <=0) { // If best game is not a profit
+                    bestGameNameEl.textContent = bestGame.name !== '-' ? bestGame.name : '-';
+                 }
+
+
+            } else {
+                bestGameNameEl.textContent = '-';
+                bestGameValueEl.textContent = formatCurrency(0);
+                bestGameValueEl.className = 'stat-value neutral';
+                worstGameNameEl.textContent = '-';
+                worstGameValueEl.textContent = formatCurrency(0);
+                worstGameValueEl.className = 'stat-value neutral';
+            }
+        }
+        
+        function renderGameCards() {
+            el.gameCardsContainer.innerHTML = ''; // Clear existing cards
+            const gameSummaries = {};
+
+            // Initialize summaries for all defined games
+            Object.keys(initialGameDefinitions).forEach(gameKey => {
+                gameSummaries[gameKey] = { total: 0, sessions: 0, name: getGameName(gameKey), class: getGameClass(gameKey) };
+            });
+            
+            allSessions.forEach(session => {
+                if (!gameSummaries[session.game]) { // Should not happen if all games are in initialGameDefinitions
+                     gameSummaries[session.game] = { total: 0, sessions: 0, name: getGameName(session.game), class: getGameClass(session.game) };
+                }
+                gameSummaries[session.game].total += session.amount;
+                gameSummaries[session.game].sessions++;
+            });
+
+            Object.entries(gameSummaries).forEach(([gameKey, summary]) => {
+                if (summary.sessions === 0 && summary.total === 0) return; // Optionally hide games with no activity
+
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                
+                const header = document.createElement('div');
+                header.className = `game-header ${summary.class}`;
+                header.textContent = summary.name;
+                
+                const stats = document.createElement('div');
+                stats.className = 'game-stats';
+                
+                const balanceRow = document.createElement('div');
+                balanceRow.className = 'stat-row';
+                balanceRow.innerHTML = `
+                    <span class="stat-label">Bilancio Totale:</span>
+                    <span class="stat-value ${summary.total >= 0 ? 'profit' : 'loss'}">${formatCurrency(summary.total)}</span>
+                `;
+                
+                const sessionsRow = document.createElement('div');
+                sessionsRow.className = 'stat-row';
+                sessionsRow.innerHTML = `
+                    <span class="stat-label">Sessioni Giocate:</span>
+                    <span class="stat-value neutral">${summary.sessions}</span>
+                `;
+                
+                const avgRow = document.createElement('div');
+                avgRow.className = 'stat-row';
+                const avg = summary.sessions > 0 ? summary.total / summary.sessions : 0;
+                avgRow.innerHTML = `
+                    <span class="stat-label">Media per Sessione:</span>
+                    <span class="stat-value ${avg >= 0 ? 'profit' : (avg < 0 ? 'loss' : 'neutral')}">${formatCurrency(avg)}</span>
+                `;
+
+                stats.appendChild(balanceRow);
+                stats.appendChild(sessionsRow);
+                stats.appendChild(avgRow);
+                card.appendChild(header);
+                card.appendChild(stats);
+                el.gameCardsContainer.appendChild(card);
+            });
+        }
+
+        function filterHistory() {
+            const gameFilter = el.historyGameFilter.value;
+            const dateFrom = el.historyDateFrom.value ? new Date(el.historyDateFrom.value) : null;
+            const dateTo = el.historyDateTo.value ? new Date(el.historyDateTo.value) : null;
+
+            if (dateFrom) dateFrom.setHours(0,0,0,0);
+            if (dateTo) dateTo.setHours(23,59,59,999);
+
+            let filteredSessions = allSessions.filter(session => {
+                const sessionDate = new Date(session.date);
+                const gameMatch = !gameFilter || session.game === gameFilter;
+                const dateFromMatch = !dateFrom || sessionDate >= dateFrom;
+                const dateToMatch = !dateTo || sessionDate <= dateTo;
+                return gameMatch && dateFromMatch && dateToMatch;
+            });
+            
+            // Sort by date descending for history view
+            filteredSessions.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            renderHistoryTable(filteredSessions);
+        }
+        
+        function renderHistoryTable(sessionsToRender) {
+            el.historyTableBody.innerHTML = '';
+            let runningBalance = 0; // This is tricky for filtered views, will show session balance instead
+            
+            // Calculate running balance for *all* sessions up to the point of each displayed session
+            const fullSessionsSorted = [...allSessions].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            sessionsToRender.forEach(session => {
+                // To show a meaningful running balance, we'd need to calculate it based on all preceding sessions,
+                // not just the filtered ones. This can be complex.
+                // For simplicity, let's display the session's own amount as "Bilancio Sessione".
+                // A true running balance would require iterating through allSessions up to this session's date.
+                // This current approach calculates running balance for the displayed (filtered) list.
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatDate(session.date)}</td>
+                    <td>${formatTime(session.date)}</td>
+                    <td>${getGameName(session.game)}</td>
+                    <td class="${session.amount >= 0 ? 'profit' : 'loss'}">${formatCurrency(session.amount)}</td>
+                    <td class="${session.amount >= 0 ? 'profit' : 'loss'}">${formatCurrency(session.amount)}</td> 
+                    <td><button class="delete-session-btn" onclick="deleteSession(${session.id})">🗑️ Elimina</button></td>
+                `;
+                el.historyTableBody.appendChild(tr);
+            });
+        }
+
+        function clearHistoryFilters() {
+            el.historyGameFilter.value = '';
+            el.historyDateFrom.value = '';
+            el.historyDateTo.value = '';
+            filterHistory();
+            showNotification("Filtri cronologia resettati.", "info");
+        }
+
+        function showTab(tabName, clickedTabElement) {
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            
+            document.querySelectorAll('.tabs .tab').forEach(tab => tab.classList.remove('active'));
+            if (clickedTabElement) {
+                 clickedTabElement.classList.add('active');
+            } else { // Fallback if called without element, e.g. on init
+                document.querySelector(`.tabs .tab[onclick*="'${tabName}'"]`).classList.add('active');
+            }
+        }
+
+        function setQuickAmount(amount) {
+            el.amountInput.value = amount;
+        }
+
+        function exportToCSV() {
+            if (allSessions.length === 0) {
+                showNotification("Nessun dato da esportare.", "warning");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Data,Ora,Gioco,Nome Gioco,Importo\r\n"; // Header Row
+
+            const sessionsToExport = [...allSessions].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            sessionsToExport.forEach(session => {
+                const date = new Date(session.date);
+                const dateStr = date.toLocaleDateString('it-IT');
+                const timeStr = date.toLocaleTimeString('it-IT');
+                const row = `${session.id},${dateStr},${timeStr},${session.game},"${getGameName(session.game)}",${session.amount}\r\n`;
+                csvContent += row;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${currentDataKey}_export_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link); 
+            link.click();
+            document.body.removeChild(link);
+            showNotification("Dati esportati in CSV.", "success");
+        }
+        
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedSessions = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedSessions)) throw new Error("Il JSON non è un array.");
+                    
+                    // Basic validation of imported sessions
+                    const validSessions = importedSessions.filter(s => 
+                        s.hasOwnProperty('id') &&
+                        s.hasOwnProperty('game') && initialGameDefinitions.hasOwnProperty(s.game) &&
+                        s.hasOwnProperty('amount') && typeof s.amount === 'number' &&
+                        s.hasOwnProperty('date') && !isNaN(new Date(s.date).getTime())
+                    );
+
+                    if (validSessions.length !== importedSessions.length) {
+                         showNotification(`Importazione parziale: ${validSessions.length} sessioni valide su ${importedSessions.length}. Alcune sessioni potrebbero essere state scartate per formato non valido o gioco sconosciuto.`, "warning");
+                    }
+                    
+                    if (validSessions.length > 0) {
+                        pendingAction = () => {
+                            allSessions = validSessions.map(s => ({...s, date: new Date(s.date)})); // Ensure dates are Date objects
+                            allSessions.sort((a,b) => new Date(a.date) - new Date(b.date));
+                            saveData();
+                            updateAllDisplays();
+                            showNotification(`Importate ${validSessions.length} sessioni con successo. I dati precedenti sono stati sovrascritti.`, "success");
+                            closeModal();
+                        };
+                        openModal("Conferma Importazione", `Stai per importare ${validSessions.length} sessioni. Questo sovrascriverà tutti i dati attuali. Continuare?`);
+                    } else {
+                        showNotification("Nessuna sessione valida trovata nel file JSON.", "error");
+                    }
+
+                } catch (err) {
+                    console.error("Errore importazione JSON:", err);
+                    showNotification("Errore durante l'importazione del file JSON. Assicurati che sia un file valido.", "error");
+                } finally {
+                     event.target.value = null; // Reset file input
+                }
+            };
+            reader.readAsText(file);
+        }
+
+
+        function confirmClearAllData() {
+            pendingAction = () => {
+                allSessions = [];
+                saveData(); // Saves the empty array
+                updateAllDisplays();
+                showNotification("Tutti i dati sono stati cancellati.", "success");
+                closeModal();
+            };
+            openModal("Conferma Reset Dati", "Sei sicuro di voler cancellare TUTTI i dati? Questa azione è irreversibile.");
+        }
+        
+        // Modal Functions
+        function openModal(title, message) {
+            el.modalTitle.textContent = title;
+            el.modalMessage.textContent = message;
+            el.confirmModal.style.display = 'flex'; // Use flex to center
+            el.confirmBtn.onclick = () => { // Re-assign confirm action
+                if (typeof pendingAction === 'function') {
+                    pendingAction();
+                }
+            };
+        }
+
+        function closeModal() {
+            el.confirmModal.style.display = 'none';
+            pendingAction = null; // Clear pending action
+        }
+
+        // Close modal if clicked outside content
+        window.onclick = function(event) {
+            if (event.target == el.confirmModal) {
+                closeModal();
+            }
+        }
+
+    </script>
+</body>
+</html>
